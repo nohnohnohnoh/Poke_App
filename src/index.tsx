@@ -1,19 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { ThemeProvider } from "styled-components";
 import Router from "./Router";
-import GlobalStyle from "./Styles/GlobalStyle";
-import { theme } from "./Styles/theme";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { RecoilRoot } from "recoil";
+const queryClinet = new QueryClient();
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <GlobalStyle />
-    <ThemeProvider theme={theme}>
-      <RouterProvider router={Router} />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClinet}>
+      <RecoilRoot>
+        <RouterProvider router={Router} />
+      </RecoilRoot>
+    </QueryClientProvider>
   </React.StrictMode>
 );
