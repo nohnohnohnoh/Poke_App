@@ -24,9 +24,8 @@
         const index = Math.floor(Math.random() * (numbers.length - n));
         answer.push(numbers[index]);
         numbers.splice(index, 1);
-      }
-
-      console.log(answer);
+      } // numbers를 이용해 answer를 만드는 이유 중복 숫자가 안나오게끔 하기 위해서
+      // numbers.length - n 숫자를 뽑은 갯수 만큼 줄어들기 때문에 준 만큼 갯수로 index름 만들기 위해서
 
       const tries = [];
       function checkInput(input) {
