@@ -9,10 +9,12 @@
       <button>확인</button>
     </form>
     <div id="logs"></div>
+    <div id="outs"></div>
     <script>
       const $input = document.querySelector("#input");
       const $form = document.querySelector("#form");
       const $logs = document.querySelector("#logs");
+      const $outs = document.querySelector("#outs");
 
       const numbers = [];
       for (let n = 0; n < 9; n++) {
@@ -26,6 +28,7 @@
         numbers.splice(index, 1);
       } // numbers를 이용해 answer를 만드는 이유 중복 숫자가 안나오게끔 하기 위해서
       // numbers.length - n 숫자를 뽑은 갯수 만큼 줄어들기 때문에 준 만큼 갯수로 index름 만들기 위해서
+      console.log(answer);
 
       const tries = [];
       function checkInput(input) {
@@ -99,9 +102,10 @@
 
         let out = 0;
         if (strike === 0 && ball === 0) {
-          out++;
-
+          out + 1;
+          console.log(`${out}`);
           $logs.append(`아웃`, document.createElement("br"));
+          $outs.append(`${out}아웃`);
         }
         if (out === 3) {
           const message = document.createTextNode(
