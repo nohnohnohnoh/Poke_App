@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>로또추첨기</title>
+  <style>
+    .ball {
+      display: inline-block;
+      border: 1px solid black;
+      border-radius: 20px;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 20px;
+      text-align: center;
+      margin-right: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="result">추첨 결과는?</div>
+  <div id="bonus">보너스:</div>
+  <script>
+    const candidate = Array(45)
+      .fill()
+      .map((v, i) => i + 1);
+    const shuffle = [];
+    while (candidate.length > 0) {
+      // 조건이 간단하다면 while을 쓰는 것이 편하다.
+      const random = Math.floor(Math.random() * candidate.length);
+      const spliceArray = candidate.splice(random, 1);
+      const value = spliceArray[0];
+      shuffle.push(value);
+    }
+    // for문으로 바꾸었을 때
+    // for (let i = candidate.length; i > 0; i--) {
+    //   const random = Math.floor(Math.random() * i);
+    //   const spliceArray = candidate.splice(random, 1);
+    //   const value = spliceArray[0];
+    //   shuffle.push(value);
+    // }
+    console.log(shuffle);
+    const winBalls = shuffle.slice(0, 6).sort((a, b) => a - b);
+    const bonus = shuffle[6];
+    console.log(winBalls, bonus);
+
+    // const $result = document.querySelector("#result");
+    // const timeBall = (i) => {
+    //   setTimeout(() => {
+    //     const $ball = document.createElement("div");
+    //     $ball.className = "ball";
+    //     $ball.textContent = winBalls[i];
+    //     $result.appendChild($ball);
+    //   }, 1000 * i);
+    // }; // 중복 코드 없애는 버버 중복되는 코드는 함수로 만들고 달라지는 부분을 매개변수로.
+
+    // for (let i = 0; i < winBalls.length; i++) {
+    //   timeBall(i);
+    // }
+
+    // const $bonus = document.querySelector("#bonus");
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = bonus;
+    //   $bonus.appendChild($ball);
+    // }, 7000);
+
+    // const $result = document.querySelector("#result");
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[0];
+    //   $result.appendChild($ball);
+    // }, 1000);
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[1];
+    //   $result.appendChild($ball);
+    // }, 2000);
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[2];
+    //   $result.appendChild($ball);
+    // }, 3000);
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[3];
+    //   $result.appendChild($ball);
+    // }, 4000);
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[4];
+    //   $result.appendChild($ball);
+    // }, 5000);
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = winBalls[5];
+    //   $result.appendChild($ball);
+    // }, 6000);
+    // const $bonus = document.querySelector("#bonus");
+    // setTimeout(() => {
+    //   const $ball = document.createElement("div");
+    //   $ball.className = "ball";
+    //   $ball.textContent = bonus;
+    //   $result.appendChild($ball);
+    // }, 7000);
+
+    function colorize(number, $tag) {
+      if (number < 10) {
+        $tag.style.backgroundColor = "red";
+        $tag.style.color = "white";
+      } else if (number < 20) {
+        $tag.style.backgroundColor = "orange";
+      } else if (number < 30) {
+        $tag.style.backgroundColor = "yellow";
+      } else if (number < 40) {
+        $tag.style.backgroundColor = "blue";
+        $tag.style.color = "white";
+      } else {
+        $tag.style.backgroundColor = "green";
+        $tag.style.color = "white";
+      }
+    }
+
+    const $result = document.querySelector("#result");
+    function drawBall(number, $parent) {
+      const $ball = document.createElement("div");
+      $ball.className = "ball";
+      $ball.textContent = number;
+      colorize(number, $ball);
+      $parent.appendChild($ball);
+    }
+
+    for (let i = 0; i < winBalls.length; i++) {
+      setTimeout(() => {
+        drawBall(winBalls[i], $result);
+      }, 1000 * (i + 1));
+    }
+
+    const $bonus = document.querySelector("#bonus");
+    setTimeout(() => {
+      drawBall(bonus, $bonus);
+    }, 7000);
+  </script>
+</body>
