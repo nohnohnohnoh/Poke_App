@@ -1,0 +1,144 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>가위바위보</title>
+    <style>
+      #computer {
+        width: 142px;
+        height: 200px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="computer"></div>
+    <div>
+      <button id="scissors" class="btn">가위</button>
+      <button id="rock" class="btn">바위</button>
+      <button id="paper" class="btn">보</button>
+    </div>
+    <div id="score">0</div>
+    <script>
+      const $computer = document.querySelector("#computer");
+      const $score = document.querySelector("#score");
+      const $rock = document.querySelector("#rock");
+      const $scissors = document.querySelector("#scissors");
+      const $paper = document.querySelector("#paper");
+      const IMG_URL = "./rsp.png";
+      $computer.style.background = `url(${IMG_URL}) 0 0`;
+      $computer.style.backgroundSize = "auto 200px";
+
+      const rspX = {
+        scissors: "0",
+        rock: "-220px",
+        paper: "-440px",
+      };
+
+      let computerChoice = "scissors";
+      const changeComputerHand = () => {
+        if (computerChoice === "rock") {
+          computerChoice = "scissors";
+        } else if (computerChoice === "scissors") {
+          computerChoice = "paper";
+        } else if (computerChoice === "paper") {
+          computerChoice = "rock";
+        }
+        $computer.style.background = `url(${IMG_URL}) ${rspX[computerChoice]} 0`;
+        $computer.style.backgroundSize = "auto 200px";
+        // setTimeout(changeComputerHand, 50);
+      };
+      //   setTimeout(changeComputerHand, 50);
+      //   changeComputerHand();
+      let intervalId = setInterval(changeComputerHand, 50);
+
+      const scoreTable = {
+        rock: 0,
+        scissors: 1,
+        paper: -1,
+      };
+
+      let clickable = true;
+      let computer = 0;
+      let me = 0;
+
+      const clickButton = () => {
+        if (clickable) {
+          clearInterval(intervalId);
+          clickable = false;
+          const myChoice =
+            event.target.textContent === "바위"
+              ? "rock"
+              : event.target.textContent === "가위"
+              ? "scissors"
+              : "paper";
+          const myScore = scoreTable[myChoice];
+          const computerScore = scoreTable[computerChoice];
+          const diff = myScore - computerScore;
+          let message;
+          if ([2, -1].includes(diff)) {
+            me += 1;
+            message = "승리";
+          } else if ([-2, 1].includes(diff)) {
+            computer += 1;
+            message = "패배";
+          } else {
+            message = "무승부";
+          }
+          if (me === 3) {
+            $score.textContent = `나의 승리 ${me}:${computer}`;
+          } else if (computer === 3) {
+            $score.textContent = `컴퓨터의 승리 ${me}:${computer}`;
+          } else {
+            $score.textContent = `${message} ${me}:${computer}`;
+            setTimeout(() => {
+              clickable = true;
+              intervalId = setInterval(changeComputerHand, 50);
+            }, 1000);
+          }
+        }
+      };
+
+      //   const clickButton = () => {
+      //     clearInterval(intervalId);
+      //     //
+      //     $rock.removeEventListener("click", clickButton);
+      //     $scissors.removeEventListener("click", clickButton);
+      //     $paper.removeEventListener("click", clickButton);
+
+      //     setTimeout(() => {
+      //       $rock.addEventListener("click", clickButton);
+      //       $scissors.addEventListener("click", clickButton);
+      //       $paper.addEventListener("click", clickButton);
+
+      //       intervalId = setInterval(changeComputerHand, 50);
+      //     }, 1000);
+      //   };
+
+      $rock.addEventListener("click", clickButton);
+      $scissors.addEventListener("click", clickButton);
+      $paper.addEventListener("click", clickButton);
+
+      // diff === "고양이" ||  diff === "강아지" ||  diff === "사자" ||  diff === "거북이"
+      // ["고양이", "사자","강아지", "거북이"].includes(diff) 위에 코드를 includes로 true false로 값을 매김.
+      // removeEventListener 정리 그리고 함수와 함수는 다르다 객체와 객체는 다르다 배열과
+      // 배열은 다르다 같게 할려면 변수에 담아 비교 분석. 참조 값이 다르다.
+      // setInterval 간격을 최대한 보장할려고 함 setTimeOut 간격 보장할려고 하지 않는다.
+      // setTimeout vs setInterval
+      //   setInterval(() => {
+      //     console.log("hello");
+      //   }, 1000);
+      // setInterval => setTimeout 변환
+      //   function Test() {
+      //     console.log("hello");
+      //     setTimeout(Test, 1000);
+      //   }
+      //   setTimeout(Test, 1000);
+      //   const fun = (값) => () => {
+      //     console.log("고차 함수입니다", 값);
+      //   };
+      //   const test = fun(1); // 변수에 담아서 참조값을 똑바로 하자
+      //   태그.addEventListener("click", fun(1));
+      //   태그.removeEventListener("click", fun(1)); // 이식은 틀렸다 왜냐 참조값이 다르다.
+    </script>
+  </body>
+</html>
