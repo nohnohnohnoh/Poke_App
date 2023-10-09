@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>반응속도</title>
+    <style>
+      #screen {
+        width: 300px;
+        height: 200px;
+        text-align: center;
+        user-select: none;
+      }
+      #screen.waiting {
+        background-color: aqua;
+      }
+      #screen.ready {
+        background-color: red;
+        color: white;
+      }
+      #screen.now {
+        background-color: greenyellow;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="screen" class="waiting">클릭해서 시작하세요</div>
+    <div id="result"></div>
+    <script>
+      // 태그.classList.contains('클래스');
+      const $screen = document.querySelector("#screen");
+      const $result = document.querySelector("#result");
+      let startTime;
+      let endTime; // 바깥에 선언한이유 첫번째로 클릭할때 startTime을 측정 두 번째로 클릭할 때 endTime을 측정
+      // 따라서 startTime을 addEventListner안에 선언하면 endTime을 측정 할때 startTime이 다시 선언 저장했던 값이 사라짐.
+      // 함수는 실행이 되고 실행이 끝나고나서 그 함수안에 있는 변수들은 리셋된다. 즉, 다 날아가버린다. 초기화 된다.
+      // 그러므로 밑에 click 함수는 색깔에 따라서 나뉜 함수이기 때문에 변수들이 클릭때마다 초기화 되며 startTime endTime
+      // 에 값이 계속 초기화 되어 원하는 값을 얻지 못한다.
+      const records = [];
+      let timeoutId;
+
+      $screen.addEventListener("click", (e) => {
+        if ($screen.classList.contains("waiting")) {
+          $screen.classList.remove("waiting");
+          $screen.classList.add("ready");
+          $screen.textContent = "초록색이 되면 클릭하세요";
+          timeoutId = setTimeout(() => {
+            $screen.classList.remove("ready");
+            $screen.classList.add("now");
+            startTime = new Date();
+            $screen.textContent = "클릭하세요!";
+          }, Math.floor(Math.random() * 1000) + 2000);
+          console.log(timeoutId);
+        } else if (e.target.classList.contains("ready")) {
+          clearTimeout(timeoutId);
+          console.log(clearTimeout(timeoutId));
+          $screen.classList.remove("ready");
+          $screen.classList.add("waiting");
+          $screen.textContent = "너무 성급하시군요!";
+        } else if ($screen.classList.contains("now")) {
+          endTime = new Date();
+          const current = endTime - startTime;
+          records.push(current);
+          const average = records.reduce((a, c) => a + c) / records.length;
+          $result.textContent = `현재 ${current}ms, 평균: ${average}ms`;
+          const topFive = records
+            .sort((a, b) => {
+              a - b;
+            })
+            .slice(0, 5);
+          topFive.forEach((top, index) => {
+            $result.append(
+              document.createElement("br"),
+              `${index + 1}위: ${top}ms`
+            ); // forEach는 배열을 순회해서 그 배열에 값을 사용할 때 쓴다. 허나 map은 연산식을 이용해 사용할 때 즉, 새 배열을 만들어 배열로 유지보수할때 쓴다.
+          }); // react에서 컴포넌트를 랜더해야하는데 즉, 태그들을 return 해서 랜더링 시켜야하는데 forEach는 아무것도 return 할 수 없다. 즉, 내 뱉을 수 없다.
+          // 그러므로 React에서 컴포넌트를 쓰게 할때 forEach는 맞지 않다. React는 컴포넌트를 return 해야하니간ㄴ
+          startTime = null;
+          endTime = null; // 혹시나 전 값이 있을 수 있으니 지워주는게 좋다 // 4분 40초
+          $screen.classList.remove("now");
+          $screen.classList.add("waiting");
+          $screen.textContent = "클릭해서 시작하세요";
+        }
+      });
+      // append가 appendChild보다 편하다.
+      // new Date(2021, 2, 31, 18, 30, 5); 차례대로 연,월,일,시,분,초
+      // 특이하게 월만 0부터 시작 그래서 2를 넣었지만 실제로 3월
+    </script>
+  </body>
+</html>

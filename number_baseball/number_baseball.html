@@ -9,27 +9,25 @@
       <button>확인</button>
     </form>
     <div id="logs"></div>
-    <div id="outs"></div>
     <script>
       const $input = document.querySelector("#input");
       const $form = document.querySelector("#form");
       const $logs = document.querySelector("#logs");
-      const $outs = document.querySelector("#outs");
 
-      const numbers = [];
+      const numbers = []; // 1부터 9까지 무작위로 늘여뜰여 놓은 배열
       for (let n = 1; n <= 9; n++) {
         numbers.push(n);
       }
 
-      const answer = [];
+      const answer = []; // 컴퓨터가 내놓은 4자리 배열
       for (let n = 0; n <= 3; n++) {
-        const index = Math.floor(Math.random() * numbers.length); // 0~8 정수
+        const index = Math.floor(Math.random() * numbers.length); // 0~8 정수 +1을 안한 이유 index이기 때문.
         answer.push(numbers[index]);
-        numbers.splice(index, 1);
+        numbers.splice(index, 1); // splice(index시작위치, 삭제갯수)
       }
       console.log(answer);
 
-      const tries = [];
+      const tries = []; // 사용자가 시도한 4자리 숫자
       function checkInput(input) {
         if (input.length !== 4) {
           // 길이는 4가 아닌가
@@ -54,16 +52,23 @@
         $input.value = "";
         const valid = checkInput(value);
 
+        if (!valid) return; // valid가 false이면 return
         if (answer.join("") === value) {
+          // 홈런이라는 경우의 수에 대한 tag
+          // answer.join("")을 하면 [1,5,4,2]하면 '1542'라는 문자열이 됨.
           $logs.textContent = "홈런!";
           return;
         }
 
-        if (tries.length >= 9) {
+        const defeated = () => {
           const message = document.createTextNode(
             `패배! 정답은 ${answer.join("")}`
           );
           $logs.appendChild(message);
+        }; // 중복된 코드 함수로 빼서 중복 제거.
+
+        if (tries.length >= 9) {
+          defeated();
           return;
         }
 
@@ -71,6 +76,7 @@
         let ball = 0;
         for (let i = 0; i < answer.length; i++) {
           const index = value.indexOf(answer[i]);
+          // indexOf index 자리에 숫자가 있으면 그 값 index가 나옴.
           if (index > -1) {
             // 일치하는 숫자 발견
             if (index === i) {
@@ -82,27 +88,34 @@
             }
           }
         }
-
-        $logs.append(
-          `${value}: ${strike} 스트라이크 ${ball} 볼`,
-          document.createElement("br")
-        );
+        // forEach로 배열 순회해 자릿 수 맞추기.
+        // answer.forEach((number, Index) => {
+        //   const index = value.indexOf(number);
+        //   if (index > -1) {
+        //     if (index === Index) {
+        //       strike += 1;
+        //     } else {
+        //       ball += 1;
+        //     }
+        //   }
+        // });
 
         if (strike === 0 && ball === 0) {
           out += 1;
           console.log(`${out}`);
-          $logs.append(`아웃`, document.createElement("br"));
-          $outs.append(`${out}아웃`);
+          $logs.append(`${value}:아웃`, document.createElement("br"));
+        } else {
+          $logs.append(
+            `${value}: ${strike} 스트라이크 ${ball} 볼`,
+            document.createElement("br")
+          );
         }
         if (out === 3) {
-          const message = document.createTextNode(
-            `패배! 정답은 ${answer.join("")}`
-          );
-          $logs.appendChild(message);
+          defeated();
           return;
         }
 
-        tries.push(value);
+        tries.push(value); // 시도한 값은 tries에 넣는다.
       });
     </script>
   </body>

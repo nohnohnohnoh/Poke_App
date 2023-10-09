@@ -45,18 +45,24 @@
         }
         $computer.style.background = `url(${IMG_URL}) ${rspX[computerChoice]} 0`;
         $computer.style.backgroundSize = "auto 200px";
-        // setTimeout(changeComputerHand, 50);
+        // setTimeout(changeComputerHand, 50); 특정 주기로 함수를 실행할려고
       };
 
-      //   setTimeout(changeComputerHand, 50);
+      //   setTimeout(changeComputerHand, 50); 특정 주기로 함수를 실행할려고
       //   changeComputerHand();
       let intervalId = setInterval(changeComputerHand, 50);
 
+      // 가위: 1,  바위: 0,   보: -1
+      // 나\컴퓨터  가위    바위    보
+      // 가위       0       1       2
+      // 바위      -1       0       1
+      // 보        -2      -1       0
       const scoreTable = {
         rock: 0,
         scissors: 1,
         paper: -1,
-      };
+      }; // 사용자가 선택한 가위바위보 컴퓨터가 낸 가위바위보로 조건문을 짜면 너무 복잡하기에 또한 중복된 코드도 많은데 중복된 코드를 제거하기에 어렵기에
+      // 규칙을 찾아 숫자로 표현해 게임 구성.
 
       let clickable = true;
       let computer = 0;
@@ -64,6 +70,7 @@
 
       const clickButton = () => {
         if (clickable) {
+          // true 일때 clickable 실행 fasle 대는 식 그대로 식 실행. 중간에 true 바뀌기 전까지 눌러도 아무 변화 없음.
           clearInterval(intervalId);
           clickable = false;
           const myChoice =
@@ -72,7 +79,7 @@
               : event.target.textContent === "가위"
               ? "scissors"
               : "paper";
-          const myScore = scoreTable[myChoice];
+          const myScore = scoreTable[myChoice]; // 객체값 참조 scoreTable["바위"] 0이 나옴.
           const computerScore = scoreTable[computerChoice];
           const diff = myScore - computerScore;
           let message;
@@ -113,7 +120,7 @@
 
       //       intervalId = setInterval(changeComputerHand, 50);
       //     }, 1000);
-      //   };
+      //   }; // removeEventListener로 이벤틀 막은 코드
 
       $rock.addEventListener("click", clickButton);
       $scissors.addEventListener("click", clickButton);

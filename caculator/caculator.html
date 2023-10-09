@@ -55,20 +55,59 @@
     <button id="multiply">x</button>
   </div>
   <script>
-    let numOne = "";
-    let operator = "";
-    let numTwo = "";
+    // 계산기의 구현에서 가장 중요한 부분은 operator(연산자)가 있는가 없는가이다.
+    // 여기서 숫자를 number type이 아닌 string type으로 하는 이유는 3,4를 눌러 34를 표현하고 싶어서 이다.
+    let numOne = ""; // 첫 번째 숫자 변수
+    let operator = ""; // 연산자 변수
+    let numTwo = ""; // 두 번째 숫자 변수
     const $operator = document.querySelector("#operator");
     const $result = document.querySelector("#result");
 
+    // () => {
+    //   if(operator) {
+    //     numTwo += '0'
+    //   } else {
+    //     numOne += '0'
+    //   }
+    // } 이렇게 addEventListner에 중복되어 코드가 들어감. 중복되는 코드는 비효율적.
+
+    // const onClickNumber = (number) => (event) => {
+    //   if (operator) {
+    //     numTwo += number;
+    //   } else {
+    //     numOne += number;
+    //   }
+    //   $result.value += number;
+    // }; // 고차 함수로 중복되는 코드 줄여 줄 수 있음.
+    // document
+    //   .querySelector("#num-0")
+    //   .addEventListener("click", onClickNumber("0"));
+
+    // const onClickNumber = (event) => {
+    //   if (operator) {
+    //     numTwo += event.target.textContent;
+    //   } else {
+    //     numOne += event.target.textContent;
+    //   }
+    //   $result.value += event.target.textContent;
+    //   // 여기서 연산자 없으면 '3'이 result 연산자 있으면 '4'가 나와 result가 합쳐짐 +가 되어있기 때문    }; // 이 부분에서 numTwo를 누르면 문자열이 합쳐지는 버그가 생김. numTwo에 값이 있을때는 result에 값을 초기화 시키는 것이 중요.
+    // };
+
     const onClickNumber = (event) => {
-      if (operator) {
-        numTwo += event.target.textContent;
-      } else {
+      if (!operator) {
         numOne += event.target.textContent;
+        $result.value += event.target.textContent;
+        return;
       }
-      $result.value = event.target.textContent;
+      // 이 아래로는 operator가 존재하는 경우에만 실행됨
+      if (!numTwo) {
+        $result.value = "";
+      }
+      numTwo += event.target.textContent;
+      $result.value += event.target.textContent;
     };
+    // 고차함수를 사용해도 중복되는 코드가 눈에 보이기에 textContent로 가져와
+    // 중첩 if문 제거
 
     document.querySelector("#num-0").addEventListener("click", onClickNumber);
     document.querySelector("#num-1").addEventListener("click", onClickNumber);
@@ -82,32 +121,15 @@
     document.querySelector("#num-9").addEventListener("click", onClickNumber);
 
     const onClickOperator = (op) => () => {
-      if (numTwo) {
-        switch (operator) {
-          case "+":
-            $result.value = parseInt(numOne) + parseInt(numTwo);
-            break;
-          case "-":
-            $result.value = numOne - numTwo;
-            break;
-          case "*":
-            $result.value = numOne * numTwo;
-            break;
-          case "/":
-            $result.value = numOne / numTwo;
-            break;
-          default:
-            break;
-        }
-        numOne = $result.value;
-        numTwo = "";
-      }
+      // 고차함수를 사용해 연산자 기호에 따른 이벤트를 나눔.
+      // operator 연산자에 이벤트에서 가장 중요한 것은 numOne이 있냐 없냐이다.
+      // 그에 따라서 연산자 변수에 값이 들어가냐 마나가 결정된다.
       if (numOne) {
         operator = op;
+        $operator.value = op;
       } else {
         alert("숫자를 먼저 입력하세요.");
       }
-      $operator.value = op;
     };
 
     document
@@ -124,7 +146,10 @@
       .addEventListener("click", onClickOperator("*"));
     document.querySelector("#calculate").addEventListener("click", () => {
       if (numTwo) {
-        switch (operator) {
+        // numTwo까지 있어야 계산 가능해짐.
+        switch (
+          operator // 조건에 해당하는 변수인 opertor가 중복 switch 사용.
+        ) {
           case "+":
             $result.value = parseInt(numOne) + parseInt(numTwo);
             break;

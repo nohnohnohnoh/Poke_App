@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>끝말잇기</title>
+  </head>
+
+  <body>
+    <div><span id="order">1</span>번째 참가자</div>
+    <div>제시어: <span id="word"></span></div>
+    <input type="text" />
+    <button>입력</button>
+    <!-- <button class="hello">버튼2</button>
+    <button class="hello">버튼3</button> -->
+    <script>
+      const number = Number(prompt("몇 명이 참가하나요?"));
+      if (number) {
+        // prompt 취소 누르면 NAN값 생성. 값 표현 fasle 나옴. if문 실행 안됨.
+        const $button = document.querySelector("button");
+        const $input = document.querySelector("input");
+        const $word = document.querySelector("#word");
+        const $order = document.querySelector("#order");
+        let word = "";
+        let newWord = "";
+
+        // if (!word) {
+        //     // true면 여기 실행
+        //     // 대신 진짜 아예 조건이 붙어 버린다. word==="안녕"이면 이런 경우면 안녕인 경우에만
+        //     // if 실행 나머지 else 실행.
+        //     console.log("if");
+        //   } else {
+        //     // false면 여기 실행
+        //     console.log("else");
+        //   }
+
+        const onClickButton = () => {
+          if (
+            (newWord.length === 3 && !word) ||
+            word[word.length] === newWord
+          ) {
+            // 제시어가 비어 있는가?
+            word = newWord; // 입력한 단어가 제시어가 된다.
+            $word.textContent = word; // 화면에 제시어 표시
+            const order = Number($order.textContent);
+            if (order + 1 > number) {
+              $order.textContent = 1;
+            } else {
+              $order.textContent = order + 1;
+            }
+            $input.value = "";
+            $input.focus();
+          } else {
+            // 비어 있지 않다.
+            if (word[word.length - 1] === newWord[0]) {
+              // 입력한 단어가 올바른가?
+              // 올바르다.
+              word = newWord; // 현재 단어를 제시어에 저장한다.
+              $word.textContent = word; // 화면에 제시어 표시
+              const order = Number($order.textContent);
+              if (order + 1 > number) {
+                $order.textContent = 1;
+              } else {
+                $order.textContent = order + 1;
+              }
+              $input.value = "";
+              $input.focus();
+            } else {
+              // 올바르지 않다.
+              alert("올바르지 않은 단어입니다!");
+              $input.value = "";
+              $input.focus();
+            }
+          }
+        };
+        const onInput = (event) => {
+          newWord = event.target.value; // 입력한 단어를 현재 단어로
+        };
+
+        $button.addEventListener("click", onClickButton);
+        $input.addEventListener("input", onInput);
+      }
+      // const onClickButton = () => {
+      //   console.log("버튼 클릭");
+      // };
+      // const onInput = (event) => {
+      //   console.log("글자 입력", event.target.value);
+      // };
+
+      // const $order = document.querySelector("#order"); // id=order를 선택한 tag
+      // const $input = document.querySelector("input");
+      // const $button = document.querySelector("button");
+      // $button.addEventListener("click", onClickButton); // onClickButton()를 넣으면 안됨 이 자리에는 함수가 와야 한다. 함수 실행이 아니라
+      // const $span = document.querySelector("div span"); // div 안에 span tag 선택
+      // const $buttons = document.querySelectorAll(".hello"); // class=hello인 tag를 모두 선택
+      // const $$buttons = document.querySelectorAll("button"); // 태그가 여러 개 있는 경우 모두 선택.
+      // const number = prompt("몇 명이 참가하나요?"); // prompt 모두 문자열로 받음. 3을 입력해도 '3'이라는 문자열 받음.
+      // const realNumber = Number(number); // type을 number타입으로 바꾸어 준다.
+      // $input.addEventListener("input", onInput);
+      // document.querySelector('선택자') tag 선택자
+      // document.querySelector('#아이디'); 특정 tag에 id 선택자
+      // document.querySelectorAll('.클래스'); 특정 tag에 class 선택자
+      // document.querySelector('선택자 내부선택자 내부선택자...'); 부모안에 자식 자식에 또다른 자식 tag를 선택 공백을 띄워주어 구분.
+      // 태그.addEventListener('이벤트 이름', 리스너함수); 이벤트 등록
+    </script>
+  </body>
+</html>
