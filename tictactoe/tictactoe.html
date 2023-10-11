@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>틱택토</title>
+    <button>test</button>
     <style>
       table {
         border-collapse: collapse;
@@ -19,27 +20,44 @@
 
   <body>
     <script>
+      // 이차원 배열을 사용해 구현. [[td,td,td],[td,td,td],[td,td,td]]
       const { body } = document;
       const $table = document.createElement("table");
       const $result = document.createElement("div");
-      const rows = []; // 줄을 담당하는 배열이 있고
+      const $button = document.querySelector("button");
+      const rows = [];
       let turn = "O";
 
+      // $button.addEventListener("click", (event) => {
+      //   event.target.textContent = "TEST";
+      // }); 예시로 해봄 실제로 test button이 TEST button으로 바뀜.
+
+      // arr = [
+      //   [td, td, td],
+      //   [td, td, td],
+      //   [td, td, td],
+      // ];
+      // arr[0][1].textContent
+
       const checkWinner = (target) => {
+        console.log("event.target", target);
         let rowIndex;
         let cellIndex;
+        // const rowIndex = target.parentNode.rowIndex; parentNode를 사용해 더욱 쉽게 rowIndex를 알 수 있음.
+        // const cellIndex = target.cellIndex;
+        // console.log(Array.from(target.parentNode.children));
+        // console.log(Array.from(target.parentNode.children).indexOf(target)); 유사 배열 객체
         rows.forEach((row, ri) => {
-          // forEach map이랑 문법 구성요서는 똑같음.
           row.forEach((cell, ci) => {
-            // 차이점은 return 값이 존재하지 않는다는 것. 그러므로 새 배열을 만들필요가 없을때는 forEach를 사용.
-            if ((cell = target)) {
+            if (cell === target) {
               rowIndex = ri;
               cellIndex = ci;
             }
           });
         });
-        // 세 칸 다 채워졌나
+        // 세 칸 다 채워졌나?
         let hasWinner = false;
+
         // 가로줄 검사
         if (
           rows[rowIndex][0].textContent === turn &&
@@ -74,43 +92,83 @@
         return hasWinner;
       };
 
-      const callback = (event) => {
-        // 칸이 이미 채워져 있는가?
-        if (event.target.textContent !== "") return;
-        // event.currentTarget 진짜 이벤트를 달아논 tag
-        // event.stopPropergation() 이벤트 버블링 막는거
-        if (turn === "X") {
-          turn = "O";
-        } else {
-          turn = "X";
+      const checkWinnerAndDraw = (target) => {
+        const hasWinner = checkWinner(target);
+        // 승자가 있으면
+        if (hasWinner) {
+          $result.textContent = `${turn}님이 승리!`;
+          $table.removeEventListener("click", callback); // 승리자가 나왔으면 더 이상 코드가 돌아가지 않게끔.
+          return;
         }
+        // 승자가 없으면
+        const draw = rows.flat().every((cell) => cell.textContent); // 앞 의 코드를 사용하면 반복문을 싹다 돌아야하는 불필요함 있음.
+        // every를 이용해 사전에 코드를 미리 찾아 해결.
+        if (draw) {
+          // 칸을 다 돌았는데 빈칸이 없으면 draw true로 밑에 코드 실행.
+          $result.textContent = `무승부`;
+          return;
+        }
+        turn = turn === "X" ? "O" : "X"; // 헷갈리면 연산자 우선순위 보기.
+      };
 
+      let clickAble = true; // setTimout으로 컴퓨터가 x를 놓는 텀을 두기 그전에 클릭을 할 수 없게끔 false일때 함수를 끝내버리는 식으로
+      const callback = (event) => {
+        if (!clickAble) {
+          return;
+        }
+        if (event.target.textContent !== "") {
+          // 빈칸이 아니면
+          console.log("빈칸이 아닙니다.");
+          return;
+        }
         // 빈칸이면
         console.log("빈칸입니다");
-        event.target.textContent = turn; // click을 했을 나타나는 text
+        event.target.textContent = turn; // 빈 칸이 이었던 textContent에 turn 변수가 들어감.
+        checkWinnerAndDraw(event.target);
+        // 승자가 있으면
+        // 승자가 없으면
+        // let draw = true; // 평상시에 무승부라고 판단한다.
+        // rows.forEach((row) => {
+        //   row.forEach((cell) => {
+        //     if (!cell.textContent) {
+        //       // 칸을 다 돌았는데 빈킨이 있으면 draw는 false
+        //       draw = false;
+        //     }
+        //   });
+        // });
+        if (turn === "X") {
+          // 컴퓨터가 직접 X를 넣는 방식
+          const emptyCells = rows.flat().filter((T) => !T.textContent);
+          const randomCell =
+            emptyCells[Math.floor(Math.random() * emptyCells.length)];
+          clickAble = false;
+          setTimeout(() => {
+            randomCell.textContent = "X";
+            checkWinnerAndDraw(randomCell);
+            clickAble = true;
+          }, 1000);
+        }
       };
 
       for (let i = 1; i <= 3; i++) {
-        const $tr = document.createElement("tr"); // 여기서 한번 행을 만들고
+        const $tr = document.createElement("tr");
         const cells = [];
         for (let j = 1; j <= 3; j++) {
-          // 한번 반복될때 3개의 열을 만들고
           const $td = document.createElement("td");
           // $td.addEventListener("click", callback);
+          // 현재 9개의 td 태그에 클릭 이벤트 리스너가 달려있음 나중에 이벤트 리스너 제거할 상황이 생기면
+          // 9개의 이벤트 리스너를 일일이 제거해야 한다.
           cells.push($td);
-          $tr.appendChild($td); // tr안에 td를 넣고
+          $tr.appendChild($td);
         }
         rows.push(cells);
         $table.appendChild($tr);
-        $table.addEventListener("click", callback);
+        $table.addEventListener("click", callback); // 3번째 인자에 true 넣으면 이벤트 캡쳐링이 된다.
       }
+      console.log(rows);
       body.appendChild($table);
       body.appendChild($result);
-      console.log(rows);
-      // table은 전체 표를 담당하는 태그 tr은 표의 가로줄을 td는 각 칸을 담당
-      // 다음 객체에서 a,c,e 속성을 구조분해 할당 문법으로 변수에 할당 // const obj =
-      //{ // a: "hello", // b: { // c: "hi", // d: { e: "wow" }, // }, // }; //
-      //const { // a, // b: { // c, // d: { e }, // }, // } = obj;
+      // event.target currentTarget, 이벤트 버블링 이벤트 캡쳐 정리
     </script>
   </body>
 </html>
