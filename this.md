@@ -1,0 +1,5 @@
+# This
+
+```javascript
+this; // window {}
+```
