@@ -81,12 +81,15 @@ new Human("youngWan", 27);
 - `new` 키워드와 소괄호 `()` 클래스 명칭과 적절한 인수를 넣어서 호출할 수 있다. 또한, 클래스 이름은 대문자이다. 생성자 함수가 대문자라는 것을 기억하면 클래스 또한, 당연히 대문자이다.
 - `constructor`는 `class`에서 필요한 기초 정보를 세팅하는 곳 객체를 `new`로 생성할 때 가장 먼저 호출 위의 예제에서 `this`는 클래스 객체 Monster를 뜻함.
 
-### class 상속 extends 녀ㅔㄷㄱ
+### class 상속 extends super
 
 - class에서의 중복된 코드를 제거하면서, 복제된 코드에서 확장시킨 클래스를 만들 수 있게 한다.
 
 ```javascript
-class Human {
+class ParentsUnit {}
+
+class Human extends ParentsUnit {
+  // 상속에 상속 extends에 extends가 가능하다 대신 중복 상속은 불가능하다.
   constructor(name, age) {
     this.name = name;
     this.age = age;
@@ -107,6 +110,12 @@ class DeveloperHuman extends Human {
   }
   consoleSkills() {
     console.log(`${this.skills.join()}로 코딩해요.`);
+  }
+  example() {
+    super.sayName(); // 이렇게 super를 통해 메서드를 불러올 수 있으며
+    // 부모클래스의 메서드 기능을 활용과 동시에 다른 기능 또한 추가 가능
+    // 반면 그냥 부모 클래스의 메서드를 사용하고 싶으면 그냥 호출하면 된다.
+    console.log("이렇게 추가적인 super의 기능또한 가능");
   }
 }
 
