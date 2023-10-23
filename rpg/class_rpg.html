@@ -1,0 +1,280 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>텍스트 RPG</title>
+  </head>
+
+  <body>
+    <form id="start-screen">
+      <input id="name-input" placeholder="주인공 이름을 입력하세요!" />
+      <button id="start">시작</button>
+    </form>
+    <div id="screen">
+      <div id="hero-stat">
+        <span id="hero-name"></span>
+        <span id="hero-level"></span>
+        <span id="hero-hp"></span>
+        <span id="hero-xp"></span>
+        <span id="hero-att"></span>
+      </div>
+      <form id="game-menu" style="display: none">
+        <div id="menu-1">1.모험</div>
+        <div id="menu-2">2.휴식</div>
+        <div id="menu-3">3.종료</div>
+        <input id="menu-input" />
+        <button id="menu-button">입력</button>
+      </form>
+      <form id="battle-menu" style="display: none">
+        <div id="battle-1">1.공격</div>
+        <div id="battle-2">2.회복</div>
+        <div id="battle-3">3.도망</div>
+        <input id="battle-input" />
+        <button id="battle-button">입력</button>
+      </form>
+      <div id="message"></div>
+      <div id="monster-stat">
+        <span id="monster-name"></span>
+        <span id="monster-hp"></span>
+        <span id="monster-att"></span>
+      </div>
+    </div>
+    <script>
+      const $startScreen = document.querySelector("#start-screen");
+      const $gameMenu = document.querySelector("#game-menu");
+      const $battleMenu = document.querySelector("#battle-menu");
+      const $heroName = document.querySelector("#hero-name");
+      const $heroLevel = document.querySelector("#hero-level");
+      const $heroHp = document.querySelector("#hero-hp");
+      const $heroXp = document.querySelector("#hero-xp");
+      const $heroAtt = document.querySelector("#hero-att");
+      const $monsterName = document.querySelector("#monster-name");
+      const $monsterHp = document.querySelector("#monster-hp");
+      const $monsterAtt = document.querySelector("#monster-att");
+      const $message = document.querySelector("#message");
+
+      class Game {
+        // game이라는 큰 객체를 만들고 게임안에 hero monster를 상호작용
+        constructor(name) {
+          this.monster = null;
+          this.hero = null; // this가 지금 이 Game 자기자신. 그리고 Game 클래스가 생성될때 Hero 클래스가 생성되게끔 구현.
+          this.monsterList = [
+            { name: "슬라임", hp: 25, att: 10, xp: 10 },
+            { name: "스켈레톤", hp: 50, att: 15, xp: 20 },
+            { name: "마왕", hp: 150, att: 35, xp: 50 },
+          ];
+          this.start(name);
+        }
+
+        start(name) {
+          // 객체아님 !! funtction임 !!
+          // addEventListner에 function this는 form 태그이다. 그래서 this가 정해져있지않는 즉, 상위환경에서의 this를 가져오는 화살표 함수를 썼지만, 아래와 같은 방식으로
+          // const _this = this로 Game 객체를 직접 변수로 지정해 전달해주면 function 통일 가능하다.
+          $gameMenu.addEventListener("submit", this.onGameMenuInput); // 게임시작과 동시 이벤트리스너 걸어준다.
+          $battleMenu.addEventListener("submit", this.onBattleMenuInput); // 게임시작과 동시 이벤트 리스너 걸어준다.
+          this.changeScreen("game"); // start 함과 동시 스크린을 바꾸어준다.
+          // 굳이 메서드로 안빼도 될 거 같은데 빼놓은 이유는 관련이 있는 것은 묶어놓는 것이 보기 편해서이다.
+          // 위에 부분은 초기 게임세팅 부분이고 start 메서드 부분은 게임 실행하고 나서이니 관련있는것 끼리 묶었다.
+          this.hero = new Hero(this, name); // this는 Game객체를 뜻하고, name은 Class 객체 생성될 때를 뜻함.
+          this.updateHeroStat();
+        }
+        changeScreen(screen) {
+          if (screen === "start") {
+            $startScreen.style.display = "block";
+            $gameMenu.style.display = "none";
+            $battleMenu.style.display = "none";
+          } else if (screen === "game") {
+            $startScreen.style.display = "none";
+            $gameMenu.style.display = "block";
+            $battleMenu.style.display = "none";
+          } else if (screen === "battle") {
+            $startScreen.style.display = "none";
+            $gameMenu.style.display = "none";
+            $battleMenu.style.display = "block";
+          }
+        }
+        onGameMenuInput = (event) => {
+          event.preventDefault();
+          const input = event.target["menu-input"].value;
+          if (input === "1") {
+            this.changeScreen("battle");
+            const randomIndex = Math.floor(
+              Math.random() * this.monsterList.length
+            );
+            const randomMonster = this.monsterList[randomIndex]; // 애초에 여기서 얕은 복사를 했음. 깊은 복사를 할 필요가 없다고 생각함. class가 새로운 객체 만드니깐? 근데
+            // 얕은 복사 후 객체를 클래스에 넣었다. 그러니 얕은복사 하고 클래스 생성한 것이다. 대신 얕은 복사를 해도 상관이 없기에 원시 값이기에 완벽히 복사 되었다.
+            this.monster = new Monster(
+              // 겉에 class는 완벽한 복사가 되었을지 몰라도 안에 값은 얕은복사 되었기에 만약 객체나 배열이면 참조값 복사 즉, 깊은 복사 했어ㅑ 했다.
+              this,
+              randomMonster.name,
+              randomMonster.hp,
+              randomMonster.att,
+              randomMonster.xp
+            );
+            this.updateMonsterStat();
+            this.showMessage(
+              `몬스터와 마주쳤다. ${this.monster.name}인 것 같다!`
+            );
+          } else if (input === "2") {
+            // 휴식
+            this.hero.hp = this.hero.maxHp;
+            this.updateHeroStat();
+            this.showMessage("충분한 휴식을 취했다.");
+          } else if (input === "3") {
+            // 종료
+            this.showMessage(" ");
+            this.quit();
+          }
+        };
+        onBattleMenuInput = (event) => {
+          event.preventDefault();
+          const input = event.target["battle-input"].value;
+          if (input === "1") {
+            const { hero, monster } = this;
+            hero.attack(monster);
+            monster.attack(hero);
+            if (hero.hp <= 0) {
+              this.showMessage(
+                `${hero.lev} 레벨에서 전사. 새 주인공을 생성하세요.`
+              );
+              this.quit();
+            } else if (monster.hp <= 0) {
+              this.showMessage(`몬스터를 잡아 ${monster.xp} 경험치를 얻었다.`);
+              hero.getXp(monster.xp);
+              this.monster = null;
+              this.changeScreen("game");
+            } else {
+              this.showMessage(
+                `${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다.`
+              );
+            }
+            this.updateHeroStat();
+            this.updateMonsterStat();
+          } else if (input === "2") {
+            // 회복
+            const { hero, monster } = this;
+            hero.hp = Math.min(hero.maxHp, hero.hp + 20); // maxhp를 넘어가 회복하는 일이 없게.
+            monster.attack(hero);
+            this.showMessage("체력을 조금 회복했다!");
+            this.updateHeroStat();
+          } else if (input === "3") {
+            // 도망
+            this.changeScreen("game");
+            this.showMessage("부리나케 도망쳤다!");
+            this.monster = null;
+            this.updateMonsterStat();
+          }
+        };
+        updateHeroStat() {
+          // 게임시작 할 때 히어로의 스택 업데이트 구간 화면에 표시하기 위한 부분.
+          const { hero } = this;
+          if (hero === null) {
+            $heroName.textContent = "";
+            $heroLevel.textContent = "";
+            $heroHp.textContent = "";
+            $heroXp.textContent = "";
+            $heroAtt.textContent = "";
+            return;
+          }
+          $heroName.textContent = hero.name;
+          $heroLevel.textContent = `${hero.lev}Lev`;
+          $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
+          $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
+          $heroAtt.textContent = `ATT: ${hero.att}`;
+        }
+        updateMonsterStat() {
+          const { monster } = this;
+          if (monster === null) {
+            $monsterName.textContent = "";
+            $monsterHp.textContent = "";
+            $monsterAtt.textContent = "";
+            return;
+          }
+          $monsterName.textContent = monster.name;
+          $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHp}`;
+          $monsterAtt.textContent = `ATT: ${monster.att}`;
+        }
+        showMessage(text) {
+          $message.textContent = text;
+        }
+        quit() {
+          this.hero = null;
+          this.monster = null;
+          this.updateHeroStat();
+          this.updateMonsterStat();
+          $gameMenu.removeEventListener("submit", this.onGameMenuInput);
+          $battleMenu.removeEventListener("submit", this.onBattleMenuInput);
+          this.changeScreen("start");
+          game = null;
+        }
+      }
+      //const game1 = new Game();
+      //const gmae2 = 이랬을때 히어로가 어떤게임인지 알기위해 게임도 상호작용
+
+      class Unit {
+        // 상속 여러번 결쳐서 가능하다. 다중 상속은 안된다.
+        // class에서 상속이라는 개념 사용. 공통되는 것을 뽑아서 중복의 코드를 줄이는 역할 보기에 편해진다.
+        // class에서의 상속을 쓰면 첫째 메서드를 자식 class에 자유롭게 쓸 수 있게 해준다.
+        // class에서의 상속을 쓰면 두번째 constructor를 자식 class에 자유 롭게 쓸 수 있게 해준다./
+        // 직접 값을 지정할 수 도 있고, 혹은 매개변수로 사용할 수 도 있다. 또한, 부모 클래스에서 + 자식 클래스에서 추가적인
+        // 값도 지정 가능하다.
+        constructor(game, name, hp, att, xp) {
+          this.game = game;
+          this.name = name;
+          this.maxHp = hp;
+          this.hp = hp;
+          this.xp = xp;
+          this.att = att;
+        }
+        attack(target) {
+          target.hp -= this.att;
+        }
+      }
+
+      class Hero extends Unit {
+        constructor(game, name) {
+          super(game, name, 100, 10, 0); // game에서도 히어로도 상호작용 반대로 히어로에서도 게임이 상호작용 되게끔.
+          this.lev = 1;
+          // 겹치는 것을 다 제거했고, 추가적인 construtor를 자식 클래스에 추가.
+        }
+        attack(target) {
+          super.attack(target); // 부모클래싀 attack 메서드를 가져왔다. 그냥 호출하며 도지만 굳이 이렇게 하는이유는
+          // 부모클래싀 메서드와는 다른 기능이 있기때문
+          console.log("영웅이 공격.");
+        }
+        heal(monster) {
+          this.hp += 20;
+          this.hp -= monster.att;
+        }
+        getXp(xp) {
+          this.xp += xp;
+          if (this.xp >= this.lev * 15) {
+            // 경험치를 다 채우면
+            this.xp -= this.lev * 15;
+            this.lev += 1;
+            this.maxHp += 5;
+            this.att += 5;
+            this.hp = this.maxHp;
+            this.game.showMessage(`레벨업! 레벨 ${this.lev}`);
+          }
+        }
+      }
+      class Monster extends Unit {
+        constructor(game, name, hp, att, xp) {
+          super(game, name, hp, att, xp);
+        }
+        attack(target) {
+          super.attack(target);
+          console.log("몬스터가 공격"); // 마찬가지 부모 클래스와는 다른기능이 있기 때문. 다르게 표현.
+        }
+      }
+      // 여기서 보면 constructor(game, name)이 중복 attack이 중복이다.
+
+      let game = null;
+      $startScreen.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const name = event.target["name-input"].value;
+        game = new Game(name);
+      });
+    </script>
+  </body>
+</html>

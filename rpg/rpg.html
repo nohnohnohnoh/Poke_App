@@ -59,6 +59,19 @@
         hp: 100,
         xp: 0,
         att: 10,
+        // attack: function(monster) {
+        //   monster.hp -= this.att;
+        //   this.hp -= monster.att;
+        // } // 원래 코드인데 밑에 코드는 function을 생략한 코드이다.
+        attack(monster) {
+          // attack: function(monster) 객체의 메서드에는 function 예약어를 생략할 수 있다.
+          monster.hp -= this.att;
+          this.hp -= monster.att;
+        },
+        heal(monster) {
+          this.hp += 20;
+          this.hp -= monster.att;
+        },
       };
       let monster = null; // 복사해서 넣기 참조 값만 즉, 객체에 접근하는 값을 복사하면 값이 바뀌면 기존 값이 바뀐다. 게임이 성립이 안된다.
       const monsterList = [
@@ -66,13 +79,15 @@
         { name: "스켈레톤", hp: 50, att: 15, xp: 20 },
         { name: "마왕", hp: 150, att: 35, xp: 50 },
       ];
-      // const monter3 = {...monster[0]} 겉껍데기만 복사 내부는 참조이다. 깊은 복사는 전부다 복사
+
+      // class 예약어로 클래스를 선언, constructor 메서드 안에 기존 코드를 넣으면 되고 new를 붙여 호출해 constructor 함수가 실행되고 객체가 반환 new 안붙이면 실행 안됨.
+      // 여기서 this는 생성된 객체 자신을 가리킴.
 
       $startScreen.addEventListener("submit", (e) => {
         e.preventDefault();
         // const name = $test.value; 기존 querySelector로 지정해 value값 가져옴.
         // const name = event.target["name-input"].value;
-        const name = e.target["name-input"].value; // form 안에 들어 있는거는 대괄호로 가져올 수 있음.
+        const { value } = e.target["name-input"]; // form 안에 들어 있는거는 대괄호로 가져올 수 있음.
         console.log(name);
         $startScreen.style.display = "none";
         $gameMenu.style.display = "block";
@@ -82,6 +97,20 @@
         $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
         $heroAtt.textContent = `ATT: ${hero.att}`;
         hero.name = name;
+      });
+
+      $battleMenu.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const { value } = event.target["battle-input"].value; // form태그안에 input []로 class지정 가능
+        if (value === "1") {
+          hero.attack(monster);
+          monster.attack(hero);
+          $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
+          $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHp}`;
+          $message.textContent = `${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다.`;
+        } else if (input === "2") {
+        } else if (input === "3") {
+        }
       });
 
       $gameMenu.addEventListener("submit", (e) => {
@@ -96,6 +125,8 @@
               monsterList[Math.floor(Math.random() * monsterList.length)]
             )
           ); // 이해 잘 안감 왜 String을 써는지 이해가 안가며 JSON을 왜 썻는지..
+          // 깊으 복사를 한것이다. monsterList들에 montster들의 속성값이 바뀌면 안되니깐 근데 깊은 복사 안하면 속성 값이 바뀜.
+          // monsterList를 계속 재사용해야 하기 때문에 깊은 복사를 해야한다.
           monster.maxHp = monster.hp;
           console.log(monster);
           $monsterName.textContent = monster.name;
@@ -107,6 +138,9 @@
           // 종료
         }
       });
+      // class 사용이유 : 몬스터가 여러마리 혹은 히어로가 여러명 일 때를 생각해 변수를 늘려서 프로그래밍을 하면
+      // 코드가 복잡해진다. 그래서 객체지향 프로그래밍을 통해 class를 이용해 서로 상호작용하게 만들어 코드를 깔금하게 만들려고 class를 사용한다.
+      // 코드가 그리고 위에서 아래로 프로그래밍 되야하는데 순서가 뒤죽박죽이라서 코드가 읽기 어렵다.
     </script>
   </body>
 </html>
